@@ -53,7 +53,7 @@ sub NetworkDevice_Initialize
   $hash->{SetFn}      = 'NetworkDevice_Set';
   $hash->{GetFn}      = 'NetworkDevice_Get';
   $hash->{AttrFn}     = 'NetworkDevice_Attr';
-  $hash->{AttrList}   = "SNMP_COMMUNITY " . $readingFnAttributes;
+  $hash->{AttrList}   = "SNMP_COMMUNITY Interval " . $readingFnAttributes;
 
 }
 
@@ -115,9 +115,9 @@ sub NetworkDevice_Define
   $hash->{NAME}           = $name;
   $hash->{SNMP_HOST}      = $host;
   $hash->{SNMP_VERSION}   = 2;
-  $hash->{Interval}       = 60;
   $hash->{STATE}          = 'online';
   $attr{$name}{SNMP_COMMUNITY} = $community;
+  $attr{$name}{Interval} = 60;
 
   # create network device specific fhem hash values
   $device->setupHash($hash);
@@ -127,7 +127,7 @@ sub NetworkDevice_Define
 
   $network_device_hash=$hash;
 
-  # create a recurring timer to update attributes
+  # create a recurring timer to update readings
   InternalTimer(gettimeofday()+2, "NetworkDevice_Update", $hash);
 
   return;
@@ -175,28 +175,11 @@ sub NetworkDevice_Set
 	my ( $hash, $name, $cmd, @args ) = @_;
 
   #get device specific command list
-  my $cmdList = "Interval " . $hash->{helper}->{device}->cmds();
+  my $cmdList = $hash->{helper}->{device}->cmds();
   my $processed;
 
-  if ($cmd eq "Interval")          # set the update interval
-  {
-    if ($args[0] !~/^\d+$/)
-    {
-      return "only numbers are allowed for setting the Interval";
-    }
-    else
-    {
-      $hash->{Interval}=$args[0];
-      RemoveInternalTimer($hash);
-      InternalTimer(gettimeofday()+$hash->{Interval}, "NetworkDevice_Update", $hash);
-    }
-    $processed=1;
-  }
-  else
-  {
-    $hash->{helper}->{device}->cmd(@_);
-    $processed = $hash->{helper}->{device}->cmd_processed();
-  }
+  $hash->{helper}->{device}->cmd(@_);
+  $processed = $hash->{helper}->{device}->cmd_processed();
 
   if ($processed == 0)
   {
@@ -212,22 +195,45 @@ sub NetworkDevice_Set
 sub NetworkDevice_Attr(@)
 {
 	my ( $cmd, $name, $attrName, $attrValue ) = @_;
-
-	if ($attrName eq "SNMP_COMMUNITY") {
-      # connect to the given host with snmp
-      my $info = new SNMP::Info(
-                                # Auto Discover more specific Device Class
-                                AutoSpecify => 1,
-                                Debug       => 0,
-                                # The rest is passed to SNMP::Session
-                                DestHost    => "udp:" . $network_device_hash->{SNMP_HOST},
-                                Community   => $attrValue,
-                                Version     => 2
-                              ) || return "Failed to connect to host \"" .$network_device_hash->{SNMP_HOST} ."\"";
-      $network_device_hash->{helper}->{device}->snmp($info);
-      $network_device_hash->{helper}->{device}->setupHash($network_device_hash);
+  if ($cmd eq "set") {
+  	if ($attrName eq "SNMP_COMMUNITY") {
+        # connect to the given host with snmp
+        my $info = new SNMP::Info(
+                                  # Auto Discover more specific Device Class
+                                  AutoSpecify => 1,
+                                  Debug       => 0,
+                                  # The rest is passed to SNMP::Session
+                                  DestHost    => "udp:" . $network_device_hash->{SNMP_HOST},
+                                  Community   => $attrValue,
+                                  Version     => 2
+                                ) || return "Failed to connect to host \"" .$network_device_hash->{SNMP_HOST} ."\"";
+        $network_device_hash->{helper}->{device}->snmp($info);
+        $network_device_hash->{helper}->{device}->setupHash($network_device_hash);
+    }
+    elsif ($attrName eq "Interval")          # set the update interval
+    {
+      if ($attrValue !~/^\d+$/)
+      {
+        $attrValue=60;
+      }
+      else
+      {
+        RemoveInternalTimer($network_device_hash);
+        InternalTimer(gettimeofday()+$attrValue, "NetworkDevice_Update", $network_device_hash);
+      }
+    }
   }
-
+  else
+  {
+    if ($attrName eq "SNMP_COMMUNITY") {
+      return "SNMP_COMMUNITY can not be deleted ! Please change.";
+    }
+    elsif ($attrName eq "Interval")
+    {
+      RemoveInternalTimer($network_device_hash);
+      InternalTimer(gettimeofday()+60, "NetworkDevice_Update", $network_device_hash);
+    }
+  }
   return undef;
 }
 
@@ -246,7 +252,7 @@ sub NetworkDevice_Update
   $device->setupHash($hash);
 
   # restart the timer
-  InternalTimer(gettimeofday()+$hash->{Interval}, "NetworkDevice_Update", $hash);
+  InternalTimer(gettimeofday()+AttrVal($name, "Interval", 60), "NetworkDevice_Update", $hash);
 }
 
 
