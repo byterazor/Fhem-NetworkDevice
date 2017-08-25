@@ -288,6 +288,23 @@ sub update {
       $update_ref->($hash, "ethernet_port_" . $ethernet_ports->{$p}->{id} . "_discarded_packets_out", $ethernet_ports->{$p}->{packets_discarded_out} , 1);
     }
 
+    #check for incoming bytes stats
+    if ( !defined($ethernet_ports->{$p}->{bytes_in}) ||
+         $ethernet_ports->{$p}->{bytes_in} ne $self->snmp->i_octet_in()->{$p}
+       )
+    {
+      $ethernet_ports->{$p}->{bytes_in} = $self->snmp->i_octet_in()->{$p};
+      $update_ref->($hash, "ethernet_port_" . $ethernet_ports->{$p}->{id} . "_bytes_in", $ethernet_ports->{$p}->{bytes_in} , 1);
+    }
+
+    #check for outgoing bytes stats
+    if ( !defined($ethernet_ports->{$p}->{bytes_out}) ||
+         $ethernet_ports->{$p}->{bytes_out} ne $self->snmp->i_octet_out()->{$p}
+       )
+    {
+      $ethernet_ports->{$p}->{bytes_out} = $self->snmp->i_octet_out()->{$p};
+      $update_ref->($hash, "ethernet_port_" . $ethernet_ports->{$p}->{id} . "_bytes_out", $ethernet_ports->{$p}->{bytes_out} , 1);
+    }
 
   }
 
