@@ -171,11 +171,28 @@ sub NetworkDevice_Set
 	my ( $hash, $name, $cmd, @args ) = @_;
 
   #get device specific command list
-  my $cmdList = $hash->{helper}->{device}->cmds();
+  my $cmdList = "Interval " . $hash->{helper}->{device}->cmds();
+  my $processed;
 
-  $hash->{helper}->{device}->cmd(@_);
-
-  my $processed = $hash->{helper}->{device}->cmd_processed();
+  if ($cmd eq "Interval")          # set the update interval
+  {
+    if ($args[0] !~/^\d+$/)
+    {
+      return "only numbers are allowed for setting the Interval";
+    }
+    else
+    {
+      $hash->{Interval}=$args[0];
+      RemoveInternalTimer($hash);
+      InternalTimer(gettimeofday()+$hash->{Interval}, "NetworkDevice_Update", $hash);
+    }
+    $processed=1;
+  }
+  else
+  {
+    $hash->{helper}->{device}->cmd(@_);
+    $processed = $hash->{helper}->{device}->cmd_processed();
+  }
 
   if ($processed == 0)
   {

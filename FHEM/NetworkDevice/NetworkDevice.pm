@@ -127,6 +127,7 @@ before 'cmd' => sub {
     $self->setupHash($hash);
     $self->cmd_processed(1);
   }
+
 };
 
 before 'update' => sub {
