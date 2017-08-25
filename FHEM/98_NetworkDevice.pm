@@ -13,6 +13,8 @@ use Data::Dumper;
 my $module_name="NetworkDevice";
 my $VERSION    = '0.0.1';
 
+my $network_device_hash;
+
 sub NetworkDevice_Define;
 sub NetworkDevice_Delete;
 sub NetworkDevice_Set;
@@ -50,8 +52,8 @@ sub NetworkDevice_Initialize
   $hash->{DeleteFn}   = "NetworkDevice_Delete";
   $hash->{SetFn}      = 'NetworkDevice_Set';
   $hash->{GetFn}      = 'NetworkDevice_Get';
-  $hash->{AttrFn}     = 'not_defined_yet';
-  $hash->{AttrList}   = $readingFnAttributes;
+  $hash->{AttrFn}     = 'NetworkDevice_Attr';
+  $hash->{AttrList}   = "SNMP_COMMUNITY " . $readingFnAttributes;
 
 }
 
@@ -111,17 +113,19 @@ sub NetworkDevice_Define
 
   # create base hash for fhem
   $hash->{NAME}           = $name;
-  $hash->{SNMP_COMMUNITY} = $community;
   $hash->{SNMP_HOST}      = $host;
   $hash->{SNMP_VERSION}   = 2;
   $hash->{Interval}       = 60;
   $hash->{STATE}          = 'online';
+  $attr{$name}{SNMP_COMMUNITY} = $community;
 
   # create network device specific fhem hash values
   $device->setupHash($hash);
 
   # save the snmp connection data in the helper hash
   $hash->{helper}->{device}=$device;
+
+  $network_device_hash=$hash;
 
   # create a recurring timer to update attributes
   InternalTimer(gettimeofday()+2, "NetworkDevice_Update", $hash);
@@ -205,9 +209,32 @@ sub NetworkDevice_Set
 
 }
 
+sub NetworkDevice_Attr(@)
+{
+	my ( $cmd, $name, $attrName, $attrValue ) = @_;
+
+	if ($attrName eq "SNMP_COMMUNITY") {
+      # connect to the given host with snmp
+      my $info = new SNMP::Info(
+                                # Auto Discover more specific Device Class
+                                AutoSpecify => 1,
+                                Debug       => 0,
+                                # The rest is passed to SNMP::Session
+                                DestHost    => "udp:" . $network_device_hash->{SNMP_HOST},
+                                Community   => $attrValue,
+                                Version     => 2
+                              ) || return "Failed to connect to host \"" .$network_device_hash->{SNMP_HOST} ."\"";
+      $network_device_hash->{helper}->{device}->snmp($info);
+      $network_device_hash->{helper}->{device}->setupHash($network_device_hash);
+  }
+
+  return undef;
+}
+
 sub NetworkDevice_Update
 {
   my ($hash) = @_;
+  my $name = $hash->{NAME};
   Log3 undef, 3, "[$module_name] update";
 
   my $device = $hash->{helper}->{device};

@@ -20,8 +20,8 @@ has 'model'     => (is => 'rw', isa => 'Str', default => "unknown");
 has 'vendor'    => (is => 'rw', isa => 'Str', default => "unknown");
 has 'ip'        => (is => 'rw', isa => 'Str', default => "unknown");
 has 'proto'     => (is => 'rw', isa => 'Str', default => "udp");
-has 'cmds'      => (is => 'rw', isa => 'Str', default => "SNMP_COMMUNITY update:noArg");
-has 'cmds_read' => (is => 'rw', isa => 'Str', default => "SNMP_COMMUNITY update:noArg");
+has 'cmds'      => (is => 'rw', isa => 'Str', default => "update:noArg");
+has 'cmds_read' => (is => 'rw', isa => 'Str', default => "update:noArg");
 has 'cmds_write'=> (is => 'rw', isa => 'Str', default => "sysName sysContact sysLocation");
 has 'cmd_processed' => (is => 'rw', isa => 'Int', default => 0);
 has 'cmd_error' =>  (is => 'rw', isa => 'Str');
@@ -67,40 +67,7 @@ before 'cmd' => sub {
   #
   # check for networkdevice common commands
   #
-  if($cmd eq "SNMP_COMMUNITY")  # set community name
-	{
-    $self->debug()->("SNMP_COMMUNITY");
-    #first test if we can connect with the community to the host
-    my $err=0;
-    my $info = new SNMP::Info(
-                              AutoSpecify => 1,
-                              Debug       => 0,
-                              DestHost    => "udp:" . $hash->{SNMP_HOST},
-                              Community   => $args[0],
-                              Version     => 2
-                            );
-
-    if (!defined($info))
-    {
-      $self->cmd_error("can not connect to host with community " . $args[0]);
-    }
-    else
-    {
-      $hash->{SNMP_COMMUNITY}=$args[0];
-      $self->snmp($info);
-      $hash->{SNMP_ACCESS}=$self->check_write() ? "readwrite" : "readonly";
-      if ($hash->{SNMP_ACCESS} eq "readwrite")
-      {
-        $self->cmds($self->cmds_read() . " " . $self->cmds_write());
-      }
-      else
-      {
-        $self->cmds($self->cmds_read());
-      }
-    }
-    $self->cmd_processed(1);
-  }
-  elsif ($cmd eq "sysName")         # set remote snmp systemName
+  if ($cmd eq "sysName")         # set remote snmp systemName
   {
     $self->snmp->set_name($args[0]);
     $self->snmp->update();
