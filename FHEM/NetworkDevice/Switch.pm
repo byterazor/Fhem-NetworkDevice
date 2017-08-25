@@ -8,6 +8,9 @@ with 'NetworkDevice::NetworkDevice';
 
 has 'ethernet_ports' => (is => 'rw', default=>undef);
 
+# check if the given SNMP::Info structure is a switch
+#
+# returns 1 for true, 0 for false
 sub isDevice
 {
   my $self=shift;
@@ -44,7 +47,6 @@ sub isDevice
   }
 
 }
-
 
 sub nr_ethernet_ports
 {
