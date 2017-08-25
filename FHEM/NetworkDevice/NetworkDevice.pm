@@ -134,9 +134,18 @@ before 'update' => sub {
     my $self = shift;
     my $hash = shift;
     my $update_ref = shift;
+    my $err=0;
+
+    eval {
+      $self->snmp->update();
+    };
+
+    if ($@)
+    {
+      $hash->{STATE}="offline";
+    }
 
     my $uptime = $self->snmp->uptime();
-
     $update_ref->($hash, "uptime", $uptime, 1);
 
 };
