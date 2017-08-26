@@ -57,12 +57,6 @@ _not yet available_
 * perl contrib/commandref_join.pl
 * review your local commandref (http://<FHEMURL>/fhem/docs/commandref.html)
 
-## Installation
-### via Update
-Use the following commands to add this repository to your FHEM installation and install all my modules.
-* update add  https://raw.githubusercontent.com/byterazor/Fhem-NetworkDevice/master/controls_byterazor-fhem-networkdevice.txt
-* update all https://raw.githubusercontent.com/byterazor/Fhem-NetworkDevice/master/controls_byterazor-fhem-networkdevice.txt
-
 ## Contributors
 
 If you want to participate in the development of this module feel free to send me an email
