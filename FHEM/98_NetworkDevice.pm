@@ -241,7 +241,6 @@ sub NetworkDevice_Update
 {
   my ($hash) = @_;
   my $name = $hash->{NAME};
-  Log3 undef, 3, "[$module_name] update";
 
   my $device = $hash->{helper}->{device};
 
