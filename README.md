@@ -4,6 +4,21 @@
 This Repository holds modules for the integration of SNMP enabled network devices
 like access points and switches into FHEM.
 
+### Current Features
+ * Fetch/Set standard SNMP values like sysName, sysContact, sysLocation
+ * identify layer2 and/or layer3 network switches
+  * Fetch port status (up, down), port names, port admin status
+  * Fetch port statistics (nr of packets, errors, bytes)
+
+### Planned Features
+  * identify routers, dsl-modems, access points
+  * fetch information and statistics from these devices
+  * set some port status (admin-mode, duplex mode, vlan, etc.)
+
+## Author
+
+Dominik Meyer <dmeyer@federationhq.de>
+
 ## Installation
 
 I only provide a debian example. If someone can provide others for Redhat, Gentoo, etc.
