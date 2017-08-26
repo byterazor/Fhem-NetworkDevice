@@ -1,0 +1,10 @@
+2017-08-26
+     ADD: removed debug code
+2017-08-25
+     ADD: moved Interval from internal to attribute + attribute delete management
+     ADD: moved SNMP_COMMUNITY from internal to attribute
+     ADD: added bytes statistics to switch
+     ADD: improved documentation
+     ADD: added offline detection
+     ADD: added set to update interval
+     ADD: added initial version of the NetworkDevice Module for FHEM

@@ -1,0 +1,4 @@
+UPD 2017-08-25_14:54:01 9960 FHEM/NetworkDevice/Switch.pm
+UPD 2017-08-24_23:23:27 399 FHEM/NetworkDevice/UnknownDevice.pm
+UPD 2017-08-25_15:43:55 3238 FHEM/NetworkDevice/NetworkDevice.pm
+UPD 2017-08-26_13:20:21 6295 FHEM/98_NetworkDevice.pm
