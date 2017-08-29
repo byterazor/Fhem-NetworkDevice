@@ -1,4 +1,11 @@
+2017-08-30
+     ADD: updated README
+     ADD: added initial version of a SyslogListener Module
 2017-08-26
+     ADD: removed old installation section
+     ADD: second version of readme
+     ADD: first version of readme
+     ADD: added files for fhem update mechanism
      ADD: removed debug code
 2017-08-25
      ADD: moved Interval from internal to attribute + attribute delete management
