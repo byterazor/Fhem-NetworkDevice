@@ -1,9 +1,19 @@
 # FHEM NetworkDevice Module
 
 ## Description
-This Repository holds modules for the integration of SNMP enabled network devices
+This Repository holds modules for the integration of network devices
 like access points and switches into FHEM.
 
+### current modules
+  * SyslogListener - listen to syslog messages from FHEM and integrate each message as a reading
+  * NetworkDevice - integrate snmp enabled network devices
+
+### Author
+
+  Dominik Meyer <dmeyer@federationhq.de>
+
+
+## NetworkDevice Module
 ### Current Features
  * Fetch/Set standard SNMP values like sysName, sysContact, sysLocation
  * identify layer2 and/or layer3 network switches
@@ -15,16 +25,14 @@ like access points and switches into FHEM.
   * fetch information and statistics from these devices
   * set some port status (admin-mode, duplex mode, vlan, etc.)
 
-## Author
 
-Dominik Meyer <dmeyer@federationhq.de>
 
-## Installation
+### Installation
 
 I only provide a debian example. If someone can provide others for Redhat, Gentoo, etc.
 please send me a pull request.
 
-### Debian requirements example
+#### Debian requirements example
 
 * apt-get install libsnmp-info-perl (all other requirements are installed with this)
 * apt-get install snmp
@@ -37,18 +45,18 @@ please send me a pull request.
  * the last step can be ignored if you already have installed mibs into your system
 
 
-### FHEM Module Installation
+#### FHEM Module Installation
 
-#### via Update
+##### via Update
 Use the following commands to add this repository to your FHEM installation and install all my modules.
 * update add  https://raw.githubusercontent.com/byterazor/Fhem-NetworkDevice/master/controls_byterazor-fhem-networkdevice.txt
 * update all https://raw.githubusercontent.com/byterazor/Fhem-NetworkDevice/master/controls_byterazor-fhem-networkdevice.txt
 
-### FHEM device definition
+#### FHEM device definition
 
   define switch NetworkDevice <ip-address | hostname>
 
-## Module Documentation
+### Module Documentation
 
 _not yet available_
 
